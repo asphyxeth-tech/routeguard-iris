@@ -33,6 +33,8 @@ When changing a Business Process or Operation after the production has started, 
 docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/stop-production.mac'
 ```
 
+Stop the development container with `docker compose -f compose.core.yml stop --timeout 30`; the Compose entrypoint asks IRIS to shut down cleanly.
+
 ## EAP integration gate
 
 The contest requires the AI Hub Community **build 154** image from InterSystems' sign-in-gated Early Access portal. The organizer says there is no public Docker Hub substitute and the image may not be redistributed. Once the operator obtains it, add an AI Hub `%AI.Agent` adapter for ambiguous events, run a real decision with an operator-approved model key and cost cap, and document the exact image load/retag and model settings. A replay path may help judges explore the workflow without a key, but must be labeled as replay. Do not claim this current fallback is an AI decision.

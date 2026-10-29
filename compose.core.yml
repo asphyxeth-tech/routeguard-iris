@@ -1,6 +1,12 @@
 services:
   iris:
     image: intersystemsdc/iris-community:2026.3-zpm
-    entrypoint: ["/bin/sh", "-lc", "iris start IRIS && sleep infinity"]
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - >-
+        iris start IRIS &&
+        trap 'iris stop IRIS quietly; exit 0' TERM INT;
+        while :; do sleep 1; done
     volumes:
       - ./:/opt/routeguard:ro
