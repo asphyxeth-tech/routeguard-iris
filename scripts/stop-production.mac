@@ -1,0 +1,5 @@
+ZN "USER"
+SET sc = ##class(Ens.Director).StopProduction(10,1)
+WRITE "STOP_STATUS=",$System.Status.IsOK(sc),!
+IF $System.Status.IsError(sc) WRITE $System.Status.GetErrorText(sc),!
+HALT

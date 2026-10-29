@@ -1,0 +1,6 @@
+services:
+  iris:
+    image: intersystemsdc/iris-community:2026.3-zpm
+    entrypoint: ["/bin/sh", "-lc", "iris start IRIS && sleep infinity"]
+    volumes:
+      - ./:/opt/routeguard:ro

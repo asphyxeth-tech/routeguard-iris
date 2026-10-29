@@ -1,0 +1,4 @@
+ZN "USER"
+SET failures = ##class(RouteGuard.Test.Production).Run()
+WRITE "ROUTEGUARD_PRODUCTION_EXIT=",failures,!
+HALT

@@ -1,0 +1,8 @@
+ZN "%SYS"
+DO ##class(%EnsembleMgr).EnableNamespace("USER",1)
+ZN "USER"
+SET sc = $SYSTEM.OBJ.LoadDir("/opt/routeguard/src","ck",.err,1)
+WRITE "LOAD_STATUS=",$System.Status.IsOK(sc),!
+IF $System.Status.IsError(sc) WRITE $System.Status.GetErrorText(sc),!
+WRITE "POLICY_CLASS=",##class(%Dictionary.ClassDefinition).%ExistsId("RouteGuard.Policy"),!
+HALT

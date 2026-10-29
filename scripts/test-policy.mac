@@ -1,0 +1,4 @@
+ZN "USER"
+SET failures = ##class(RouteGuard.Test.Policy).Run()
+WRITE "ROUTEGUARD_POLICY_EXIT=",failures,!
+HALT
