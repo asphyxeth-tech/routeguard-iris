@@ -1,0 +1,13 @@
+services:
+  iris:
+    image: iris-community:2026.3.0AI.154.0
+    pull_policy: never
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - >-
+        iris start IRIS &&
+        trap 'iris stop IRIS quietly; exit 0' TERM INT;
+        while :; do sleep 1; done
+    volumes:
+      - ./:/opt/routeguard:ro

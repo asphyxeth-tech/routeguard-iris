@@ -39,4 +39,14 @@ Stop the development container with `docker compose -f compose.core.yml stop --t
 
 The contest requires the AI Hub Community **build 154** image from InterSystems' sign-in-gated Early Access portal. The organizer says there is no public Docker Hub substitute and the image may not be redistributed. Once the operator obtains it, add an AI Hub `%AI.Agent` adapter for ambiguous events, run a real decision with an operator-approved model key and cost cap, and document the exact image load/retag and model settings. A replay path may help judges explore the workflow without a key, but must be labeled as replay. Do not claim this current fallback is an AI decision.
 
+For x64, the required archive is named **`iris-community-2026.3.0AI.154.0-docker.tar.gz`**. The similar `iris-2026.3.0AI.154.0-docker.tar.gz` archive is the non-Community edition and is not the contest image. Once the Community archive is available, load it locally, use the image name printed by Docker as `<loaded-image>`, and tag it for the EAP Compose file:
+
+```powershell
+docker image load -i <path-to-iris-community-2026.3.0AI.154.0-docker.tar.gz>
+docker tag <loaded-image> iris-community:2026.3.0AI.154.0
+docker compose -f compose.eap.yml up -d
+```
+
+`compose.eap.yml` explicitly refuses a registry pull. Its syntax is checked, but startup and AI Hub behavior are unverified until the correct image is installed. Do not commit the archive, a derived image, license, provider key, or `.env` file.
+
 The contest application also needs a public open-source repository, a clean setup on build 154, and an Open Exchange submission by November 8, 2026 at 23:59 EST. No prize or payout has been received.
