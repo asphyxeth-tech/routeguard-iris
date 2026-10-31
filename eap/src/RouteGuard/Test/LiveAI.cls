@@ -1,4 +1,4 @@
-/// One bounded, paid-provider smoke test on synthetic data. Run only with approval.
+/// One bounded provider smoke test on synthetic data. Run only with approval.
 Class RouteGuard.Test.LiveAI Extends %RegisteredObject
 {
 

@@ -4,7 +4,7 @@ RouteGuard is a new InterSystems IRIS Interoperability prototype for shipment-ex
 
 RouteGuard's original source is [MIT-licensed](LICENSE). The proprietary AI Hub Early Access image and the separate local model weights are dependencies that are not included in this repository.
 
-**Current status:** the core production and native AI Hub adapter compile on the required IRIS AI Hub Community build 154. A free **local Ollama** model made a live synthetic decision through the IRIS production, and the route, reason, and source matched the durable audit record. The no-provider fallback and deterministic tests also pass. The app has **not** been published or submitted to the [AI Agents in Interoperability Workflows contest](https://community.intersystems.com/post/intersystems-programming-contest-ai-agents-interoperability-workflows); no prize or payout exists.
+**Current status:** the core production and native AI Hub adapter compile on the required IRIS AI Hub Community build 154. A free **local Ollama** model made a live synthetic decision through the IRIS production, and the route, reason, and source matched the durable audit record. The no-provider fallback and deterministic tests also pass. Publishing this source does not itself submit an entry to the [AI Agents in Interoperability Workflows contest](https://community.intersystems.com/post/intersystems-programming-contest-ai-agents-interoperability-workflows) or establish a prize or payout.
 
 ## What runs today
 
