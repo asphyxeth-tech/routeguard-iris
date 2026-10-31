@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">RouteGuard logo</title>
+  <desc id="desc">A bright route fork inside a teal shield on a dark navy square.</desc>
+  <rect width="1024" height="1024" rx="196" fill="#091D2B"/>
+  <path d="M512 154C426 208 327 232 244 246v258c0 188 101 316 268 388 167-72 268-200 268-388V246c-83-14-182-38-268-92Z"
+        fill="#103542" stroke="#37D6C1" stroke-width="44" stroke-linejoin="round"/>
+  <path d="M512 708V553c0-54-24-89-67-125l-54-44M512 553c0-54 24-89 67-125l54-44"
+        fill="none" stroke="#F0FFFB" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="391" cy="384" r="32" fill="#F0FFFB"/>
+  <circle cx="633" cy="384" r="32" fill="#37D6C1"/>
+  <circle cx="512" cy="708" r="32" fill="#F0FFFB"/>
+</svg>
