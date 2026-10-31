@@ -24,7 +24,7 @@ The work is fresh for this income competition. It uses no code or concept from D
 
 - The contest requires exact AI Hub EAP Community build 154, obtained from the sign-in-gated InterSystems portal. No matching image is currently installed. The public `intersystemsdc/iris-community:2026.3-zpm` image can compile and exercise only the non-AI core. Do not present this as a completed AI Hub entry until build 154 is obtained and a live agent decision is verified.
 - The Early Access image must not be republished or included in a public repository; only Dockerfiles, Compose, source, and setup steps may be shared.
-- No paid LLM call is made in development without explicit cost visibility. Judges may use their own key. A labeled replay mode can demonstrate wiring without claiming it is a live AI decision.
+- The verified development path uses a local Ollama model via AI Hub's OpenAI-compatible provider, with a dummy nonsecret client key. No cloud API key or provider fee is needed. A future cloud path requires an owner-approved key and cost cap. A labeled replay mode may help judges explore the workflow without an active model but must not be presented as a live AI decision.
 - The final contest app must be fully functional, open source, documented in English, and submitted by November 8, 2026 at 23:59 EST. A prize is not a receipt until paid.
 
 ## Non-goals

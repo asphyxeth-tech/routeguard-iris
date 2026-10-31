@@ -1,5 +1,6 @@
 ZN "USER"
-IF $SYSTEM.Util.GetEnviron("OPENAI_API_KEY")'="" WRITE "NO_KEY_TEST_SKIPPED=key present",! HALT
+SET mode=$ZCONVERT($ZSTRIP($SYSTEM.Util.GetEnviron("ROUTEGUARD_AI_PROVIDER"),"<>W"),"L")
+IF (mode'="")&&(mode'="none") WRITE "NO_KEY_TEST_SKIPPED=provider enabled",! HALT
 SET failures=0
 SET sc=##class(Ens.Director).CreateBusinessService("RouteGuard.Service.Intake",.service)
 IF $System.Status.IsError(sc) WRITE "FAIL create service",! HALT

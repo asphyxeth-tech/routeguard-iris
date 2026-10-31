@@ -1,0 +1,8 @@
+ZN "USER"
+WRITE "TEST_PROVIDER_MODE=",$System.Util.GetEnviron("ROUTEGUARD_AI_PROVIDER"),!
+SET agent=##class(RouteGuard.AI.Agent).%New()
+SET sc=agent.%Init()
+WRITE "LOCAL_PROVIDER_INIT_STATUS=",$System.Status.IsOK(sc),!
+IF $System.Status.IsError(sc) WRITE "LOCAL_PROVIDER_ERROR=",$System.Status.GetErrorText(sc),!
+IF $System.Status.IsOK(sc) WRITE "LOCAL_PROVIDER_MODEL=",agent.Model,!
+HALT

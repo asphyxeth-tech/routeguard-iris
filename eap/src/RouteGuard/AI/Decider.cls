@@ -7,8 +7,6 @@ ClassMethod Decide(event As RouteGuard.Message.Exception, Output route As %Strin
     Set route = "", reason = ""
     Set sc = ##class(RouteGuard.Policy).Validate(event)
     If $System.Status.IsError(sc) Quit sc
-    If $System.Util.GetEnviron("OPENAI_API_KEY") = "" Quit $$$ERROR($$$GeneralError,"AI Hub key is not configured")
-
     Set request = {
         "eventType": (event.EventType),
         "delayMinutes": (event.DelayMinutes),

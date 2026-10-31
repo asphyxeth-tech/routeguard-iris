@@ -1,9 +1,24 @@
 services:
+  ollama:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
   iris:
     image: iris-community:2026.3.0AI.154.0
     pull_policy: never
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ROUTEGUARD_AI_PROVIDER: ${ROUTEGUARD_AI_PROVIDER:-none}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
     ports:
       - "127.0.0.1:52773:52773"
     entrypoint:
@@ -15,3 +30,8 @@ services:
         while :; do sleep 1; done
     volumes:
       - ./:/opt/routeguard:ro
+    depends_on:
+      ollama:
+        condition: service_healthy
+volumes:
+  ollama_models:

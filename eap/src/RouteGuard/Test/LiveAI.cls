@@ -4,8 +4,9 @@ Class RouteGuard.Test.LiveAI Extends %RegisteredObject
 
 ClassMethod Run() As %Integer
 {
-    If $System.Util.GetEnviron("OPENAI_API_KEY") = "" {
-        Write "AI_LIVE_TEST_FAILURES=1 missing OPENAI_API_KEY",!
+    Set mode = $ZCONVERT($ZSTRIP($System.Util.GetEnviron("ROUTEGUARD_AI_PROVIDER"),"<>W"),"L")
+    If (mode '= "ollama")&&(mode '= "openai") {
+        Write "AI_LIVE_TEST_FAILURES=1 provider disabled or unknown",!
         Quit 1
     }
     Set sc = ##class(Ens.Director).GetProductionStatus(.productionName,.productionState)
@@ -31,8 +32,12 @@ ClassMethod Run() As %Integer
     Set audit = ##class(RouteGuard.Audit).%OpenId(event.EventId)
     If '$IsObject(audit) { Write "FAIL missing audit",! Set failures=failures+1 }
     If $IsObject(audit), audit.Source '= decision.Source { Write "FAIL audit source mismatch",! Set failures=failures+1 }
+    If $IsObject(audit), audit.Route '= decision.Route { Write "FAIL audit route mismatch",! Set failures=failures+1 }
+    If $IsObject(audit), audit.Reason '= decision.Reason { Write "FAIL audit reason mismatch",! Set failures=failures+1 }
+    Write "AI_LIVE_EVENT_ID=",event.EventId,!
     Write "AI_LIVE_ROUTE=",decision.Route,!
     Write "AI_LIVE_SOURCE=",decision.Source,!
+    Write "AI_LIVE_REASON=",decision.Reason,!
     Write "AI_LIVE_TEST_FAILURES=",failures,!
     Quit failures
 }

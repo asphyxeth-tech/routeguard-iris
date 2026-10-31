@@ -61,7 +61,8 @@
 - [ ] Write and run a failing live AI Hub integration test with a cost-limited provider key.
 - [ ] Implement the AI Hub adapter and wire it into the process.
 - [x] Compile EAP classes and run a no-key safe-fallback test on build 154 without a provider call.
-- [ ] Run the live test and document actual model usage and cost.
+- [x] Run a key-free local Ollama model through the IRIS AI Hub agent on Community build 154; verify route, source, reason, and durable audit match.
+- [x] Document the official model digest, local HTTP request evidence, resource sample, and zero API fee in the run record.
 
 ### Task 4: Submission readiness
 
