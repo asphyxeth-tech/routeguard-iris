@@ -2,7 +2,7 @@
 
 RouteGuard is a new InterSystems IRIS Interoperability prototype for shipment-exception decisions. Synthetic carrier events travel through an IRIS Business Service, Business Process, and Business Operation. The process validates inputs, routes safety-sensitive events to human review, and records one durable recommendation per event ID. It never changes a real shipment or contacts a customer.
 
-**Current status:** the non-AI production, its synthetic agent call boundary, and the strict JSON response parser compile and pass local tests on the public IRIS 2026.3 Community image. An AI Hub adapter is prepared separately under `eap/src`, but it has **not** been compiled or run on the required AI Hub Community build 154. This is not yet a completed entry for the [AI Agents in Interoperability Workflows contest](https://community.intersystems.com/post/intersystems-programming-contest-ai-agents-interoperability-workflows).
+**Current status:** the core production and AI Hub adapter compile on the required IRIS AI Hub Community build 154. With no provider key, the production safely returns `REVIEW` with `Source=fallback`; policy, parser, and production tests pass. A **live model decision has not been run or verified**, so this is not yet a completed entry for the [AI Agents in Interoperability Workflows contest](https://community.intersystems.com/post/intersystems-programming-contest-ai-agents-interoperability-workflows).
 
 ## What runs today
 
@@ -56,7 +56,7 @@ Stop the development container with `docker compose -f compose.core.yml stop --t
 
 ## EAP integration gate
 
-The contest requires the AI Hub Community **build 154** image from InterSystems' sign-in-gated Early Access portal. The organizer says there is no public Docker Hub substitute and the image may not be redistributed. The separate EAP adapter uses an IRIS-native `%AI.Agent` with no tools, the `gpt-5-nano` model, `OPENAI_API_KEY` from the container environment, and a 200-output-token session cap. It sends only synthetic exception fields as JSON, then passes the model's strict JSON response through `RouteGuard.AI.ResponseParser` and the production's policy guard. It has **not** yet been compiled on build 154 or used for a paid model call. A missing key fails closed to the production's REVIEW fallback. A replay path may help judges explore the workflow without a key, but must be labeled as replay. Do not claim this current fallback is an AI decision.
+The contest requires the AI Hub Community **build 154** image from InterSystems' sign-in-gated Early Access portal. The organizer says there is no public Docker Hub substitute and the image may not be redistributed. The exact x64 archive was obtained and loaded locally on October 31; Docker reports image `iris-community:2026.3.0AI.154.0` and IRIS reports version `2026.3.0AI.154.0com`. The separate EAP adapter uses an IRIS-native `%AI.Agent` with no tools, the `gpt-5-nano` model, `OPENAI_API_KEY` from the container environment, and a 200-output-token session cap. It sends only synthetic exception fields as JSON, then passes the model's strict JSON response through `RouteGuard.AI.ResponseParser` and the production's policy guard. The classes compile on build 154, but **no model call has been made**. A missing key fails closed to the production's REVIEW fallback. Do not claim this current fallback is an AI decision.
 
 For x64, the required archive is named **`iris-community-2026.3.0AI.154.0-docker.tar.gz`**. The similar `iris-2026.3.0AI.154.0-docker.tar.gz` archive is the non-Community edition and is not the contest image. Once the Community archive is available, load it locally, use the image name printed by Docker as `<loaded-image>`, and tag it for the EAP Compose file:
 
@@ -67,9 +67,10 @@ docker compose up -d
 docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/compile-core.mac'
 docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/compile-eap.mac'
 docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-production.mac'
+docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-ai-no-key.mac'
 ```
 
-`compose.yaml` is the default contest startup and `compose.eap.yml` keeps the same EAP settings for explicit use. Both refuse a registry pull and expose the local Management Portal on `127.0.0.1:52773`. Their syntax is checked, but startup, EAP class compilation, and AI Hub behavior are unverified until the correct image is installed. The test double must be removed before compiling the EAP adapter. Keep `OPENAI_API_KEY` unset or empty for the first `docker compose up -d` and `test-production.mac` so that the no-key REVIEW fallback is tested. Do not commit the archive, a derived image, license, provider key, or `.env` file. Judges use their own provider key.
+`compose.yaml` is the default contest startup and `compose.eap.yml` keeps the same EAP settings for explicit use. Both refuse a registry pull and expose the local Management Portal on `127.0.0.1:52773`. Startup and compilation were verified on build 154: `LOAD_STATUS=1`, `EAP_LOAD_STATUS=1`, `AI_AGENT_CLASS=1`, `AI_DECIDER_CLASS=1`. With `OPENAI_API_KEY` unset, `test-production.mac` exits 0 and `test-ai-no-key.mac` confirms `NO_KEY_ROUTE=REVIEW`, `NO_KEY_SOURCE=fallback`, and `ROUTEGUARD_NO_KEY_EXIT=0`. The live model path remains unverified. The test double must be removed before compiling the EAP adapter. Do not commit the archive, a derived image, license, provider key, or `.env` file. Judges use their own provider key.
 
 After build 154 is loaded and a model key/cost limit are approved, copy `.env.example` to `.env` and set `OPENAI_API_KEY` locally. Recreate the container before the live test: a plain `docker compose restart` does not update container environment variables, and recreation may lose the compiled classes, so compile both source trees again. Keep the key out of logs and screenshots.
 
@@ -85,6 +86,6 @@ Then run one synthetic live decision and check for `ROUTEGUARD_AI_LIVE_EXIT=0` p
 docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-ai-live.mac'
 ```
 
-This command has **not** been run. The program will call the provider once, so it is not part of the free core test suite. The `RouteGuard.Test.LiveAI` class is compiled only from `eap/src` on the correct image. With `.env` still blank, the preceding `test-production.mac` command should verify the no-key `REVIEW` fallback. A model or parser error should keep `Source=fallback`; those states must be tested on build 154 before contest submission.
+This command has **not** been run. The program will call the provider once, so it is not part of the free core test suite. The `RouteGuard.Test.LiveAI` class is compiled only from `eap/src` on the correct image. With `.env` still blank, the preceding no-key commands verify the `REVIEW` fallback without a provider call. A model or parser error should keep `Source=fallback`; those states still need testing before contest submission.
 
 The contest application also needs a public open-source repository, a clean setup on build 154, and an Open Exchange submission by November 8, 2026 at 23:59 EST. No prize or payout has been received.

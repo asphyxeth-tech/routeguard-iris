@@ -1,0 +1,18 @@
+ZN "USER"
+IF $SYSTEM.Util.GetEnviron("OPENAI_API_KEY")'="" WRITE "NO_KEY_TEST_SKIPPED=key present",! HALT
+SET failures=0
+SET sc=##class(Ens.Director).CreateBusinessService("RouteGuard.Service.Intake",.service)
+IF $System.Status.IsError(sc) WRITE "FAIL create service",! HALT
+SET event=##class(RouteGuard.Test.Policy).Example()
+SET event.EventId="evt-no-key-"_$System.Util.CreateGUID()
+SET sc=service.ProcessInput(event,.decision)
+IF $System.Status.IsError(sc) WRITE "FAIL process event",! HALT
+IF '$IsObject(decision) WRITE "FAIL missing decision",! HALT
+IF decision.Route'="REVIEW" WRITE "FAIL no-key route",! SET failures=failures+1
+IF decision.Source'="fallback" WRITE "FAIL no-key source",! SET failures=failures+1
+IF $Find(decision.Reason,"failed")=0 WRITE "FAIL no-key reason",! SET failures=failures+1
+WRITE "NO_KEY_ROUTE=",decision.Route,!
+WRITE "NO_KEY_SOURCE=",decision.Source,!
+WRITE "NO_KEY_REASON=",decision.Reason,!
+WRITE "ROUTEGUARD_NO_KEY_EXIT=",failures,!
+HALT
