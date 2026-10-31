@@ -1,0 +1,5 @@
+ZN "USER"
+SET sc = $SYSTEM.OBJ.Load("/opt/routeguard/tests/fixtures/RouteGuard/AI/Decider.cls","ck")
+WRITE "TEST_DOUBLE_LOAD_STATUS=",$System.Status.IsOK(sc),!
+IF $System.Status.IsError(sc) WRITE $System.Status.GetErrorText(sc),!
+HALT

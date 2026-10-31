@@ -40,7 +40,15 @@ Method OnRequest(pRequest As RouteGuard.Message.Exception, Output pResponse As R
                 Set aiSC = $ClassMethod("RouteGuard.AI.Decider","Decide",pRequest,.proposedRoute,.proposedReason)
                 If $System.Status.IsOK(aiSC) {
                     Set normalizeSC = ##class(RouteGuard.Policy).NormalizeAgentChoice(pRequest,proposedRoute,proposedReason,.route,.reason)
-                    If $System.Status.IsOK(normalizeSC) Set source = "ai"
+                    If $System.Status.IsOK(normalizeSC) {
+                        Set source = "ai"
+                        Set normalizedProposal = $ZCONVERT($ZSTRIP(proposedRoute,"<>W"),"U")
+                        If (route '= normalizedProposal)||($ZSTRIP(proposedReason,"<>W") = "") Set source = "guardrail"
+                    } Else {
+                        Set route = "REVIEW", reason = "AI Hub decision could not be validated; manual review required.", source = "fallback"
+                    }
+                } Else {
+                    Set route = "REVIEW", reason = "AI Hub agent failed; manual review required.", source = "fallback"
                 }
             } Catch ex {
                 Set route = "REVIEW", reason = "AI Hub agent failed; manual review required.", source = "fallback"

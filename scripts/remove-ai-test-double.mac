@@ -1,0 +1,5 @@
+ZN "USER"
+SET sc = $SYSTEM.OBJ.Delete("RouteGuard.AI.Decider")
+WRITE "TEST_DOUBLE_DELETE_STATUS=",$System.Status.IsOK(sc),!
+IF $System.Status.IsError(sc) WRITE $System.Status.GetErrorText(sc),!
+HALT

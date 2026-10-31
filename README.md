@@ -2,7 +2,7 @@
 
 RouteGuard is a new InterSystems IRIS Interoperability prototype for shipment-exception decisions. Synthetic carrier events travel through an IRIS Business Service, Business Process, and Business Operation. The process validates inputs, routes safety-sensitive events to human review, and records one durable recommendation per event ID. It never changes a real shipment or contacts a customer.
 
-**Current status:** the non-AI production is compiled and tested on the public IRIS 2026.3 Community image. The AI Hub agent adapter has **not** been implemented or tested. This is not yet a completed entry for the [AI Agents in Interoperability Workflows contest](https://community.intersystems.com/post/intersystems-programming-contest-ai-agents-interoperability-workflows).
+**Current status:** the non-AI production, its synthetic agent call boundary, and the strict JSON response parser compile and pass local tests on the public IRIS 2026.3 Community image. An AI Hub adapter is prepared separately under `eap/src`, but it has **not** been compiled or run on the required AI Hub Community build 154. This is not yet a completed entry for the [AI Agents in Interoperability Workflows contest](https://community.intersystems.com/post/intersystems-programming-contest-ai-agents-interoperability-workflows).
 
 ## What runs today
 
@@ -27,6 +27,25 @@ docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USE
 
 The last three commands must print `LOAD_STATUS=1`, `ROUTEGUARD_POLICY_EXIT=0`, and `ROUTEGUARD_PRODUCTION_EXIT=0`, respectively, with no ObjectScript exception. `iris session` can exit with code 0 even after a method error, so check the markers and output rather than relying on the shell exit code alone.
 
+The parser runs without a model or key:
+
+```powershell
+docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-ai-parser.mac'
+```
+
+It must print `ROUTEGUARD_AI_PARSER_EXIT=0`. To test the production's agent boundary without calling an LLM, temporarily load the clearly labeled synthetic decider, run the seam tests, and remove it. Stop the production before switching between a test double and a real adapter:
+
+```powershell
+docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/stop-production.mac'
+docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/load-ai-test-double.mac'
+docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-ai-seam.mac'
+docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/remove-ai-test-double.mac'
+docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/stop-production.mac'
+docker compose -f compose.core.yml exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-production.mac'
+```
+
+The load, seam, and delete scripts must print `TEST_DOUBLE_LOAD_STATUS=1`, `ROUTEGUARD_AI_SEAM_EXIT=0`, and `TEST_DOUBLE_DELETE_STATUS=1`. The seam test checks valid CONTACT, duplicate replay without a second decider call, blocked EXPEDITE, unknown route, decider error, and hard policy bypass. A normalized override is labeled `guardrail`, a failed decider is labeled `fallback`, and a valid decider route is labeled `ai`. This is only a deterministic test of the production wiring, not an AI Hub result.
+
 When changing a Business Process or Operation after the production has started, stop it before recompiling so the worker does not keep the old routine in memory:
 
 ```powershell
@@ -37,16 +56,27 @@ Stop the development container with `docker compose -f compose.core.yml stop --t
 
 ## EAP integration gate
 
-The contest requires the AI Hub Community **build 154** image from InterSystems' sign-in-gated Early Access portal. The organizer says there is no public Docker Hub substitute and the image may not be redistributed. Once the operator obtains it, add an AI Hub `%AI.Agent` adapter for ambiguous events, run a real decision with an operator-approved model key and cost cap, and document the exact image load/retag and model settings. A replay path may help judges explore the workflow without a key, but must be labeled as replay. Do not claim this current fallback is an AI decision.
+The contest requires the AI Hub Community **build 154** image from InterSystems' sign-in-gated Early Access portal. The organizer says there is no public Docker Hub substitute and the image may not be redistributed. The separate EAP adapter uses an IRIS-native `%AI.Agent` with no tools, the `gpt-5-nano` model, `OPENAI_API_KEY` from the container environment, and a 200-output-token session cap. It sends only synthetic exception fields as JSON, then passes the model's strict JSON response through `RouteGuard.AI.ResponseParser` and the production's policy guard. It has **not** yet been compiled on build 154 or used for a paid model call. A missing key fails closed to the production's REVIEW fallback. A replay path may help judges explore the workflow without a key, but must be labeled as replay. Do not claim this current fallback is an AI decision.
 
 For x64, the required archive is named **`iris-community-2026.3.0AI.154.0-docker.tar.gz`**. The similar `iris-2026.3.0AI.154.0-docker.tar.gz` archive is the non-Community edition and is not the contest image. Once the Community archive is available, load it locally, use the image name printed by Docker as `<loaded-image>`, and tag it for the EAP Compose file:
 
 ```powershell
 docker image load -i <path-to-iris-community-2026.3.0AI.154.0-docker.tar.gz>
 docker tag <loaded-image> iris-community:2026.3.0AI.154.0
-docker compose -f compose.eap.yml up -d
+docker compose up -d
+docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/compile-core.mac'
+docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/compile-eap.mac'
+docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-production.mac'
 ```
 
-`compose.eap.yml` explicitly refuses a registry pull. Its syntax is checked, but startup and AI Hub behavior are unverified until the correct image is installed. Do not commit the archive, a derived image, license, provider key, or `.env` file.
+`compose.yaml` is the default contest startup and `compose.eap.yml` keeps the same EAP settings for explicit use. Both refuse a registry pull and expose the local Management Portal on `127.0.0.1:52773`. Their syntax is checked, but startup, EAP class compilation, and AI Hub behavior are unverified until the correct image is installed. The test double must be removed before compiling the EAP adapter. Copy `.env.example` to `.env` and supply `OPENAI_API_KEY` only for a bounded live test after checking provider cost; Docker Compose reads `.env` and passes the key to the local container. Keep it out of logs and screenshots. Do not commit the archive, a derived image, license, provider key, or `.env` file. Judges use their own provider key.
+
+After build 154 is loaded and a model key/cost limit are approved, run one synthetic live decision and check for `ROUTEGUARD_AI_LIVE_EXIT=0` plus `AI_LIVE_SOURCE=ai`:
+
+```powershell
+docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-ai-live.mac'
+```
+
+This command has **not** been run. The program will call the provider once, so it is not part of the free core test suite. The `RouteGuard.Test.LiveAI` class is compiled only from `eap/src` on the correct image. With `.env` still blank, the preceding `test-production.mac` command should verify the no-key `REVIEW` fallback. A model or parser error should keep `Source=fallback`; those states must be tested on build 154 before contest submission.
 
 The contest application also needs a public open-source repository, a clean setup on build 154, and an Open Exchange submission by November 8, 2026 at 23:59 EST. No prize or payout has been received.

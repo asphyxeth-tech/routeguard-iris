@@ -1,0 +1,7 @@
+ZN "USER"
+SET sc = $SYSTEM.OBJ.LoadDir("/opt/routeguard/eap/src","ck",.err,1)
+WRITE "EAP_LOAD_STATUS=",$System.Status.IsOK(sc),!
+IF $System.Status.IsError(sc) WRITE $System.Status.GetErrorText(sc),!
+WRITE "AI_AGENT_CLASS=",##class(%Dictionary.ClassDefinition).%ExistsId("RouteGuard.AI.Agent"),!
+WRITE "AI_DECIDER_CLASS=",##class(%Dictionary.ClassDefinition).%ExistsId("RouteGuard.AI.Decider"),!
+HALT

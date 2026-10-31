@@ -1,0 +1,4 @@
+ZN "USER"
+SET failures = ##class(RouteGuard.Test.AIParser).Run()
+WRITE "ROUTEGUARD_AI_PARSER_EXIT=",failures,!
+HALT

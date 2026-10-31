@@ -1,0 +1,4 @@
+ZN "USER"
+SET failures = ##class(RouteGuard.Test.LiveAI).Run()
+WRITE "ROUTEGUARD_AI_LIVE_EXIT=",failures,!
+HALT

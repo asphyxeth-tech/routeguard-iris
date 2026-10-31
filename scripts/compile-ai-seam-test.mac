@@ -1,0 +1,5 @@
+ZN "USER"
+SET sc = $SYSTEM.OBJ.Load("/opt/routeguard/src/RouteGuard/Test/AISeam.cls","ck")
+WRITE "AI_SEAM_TEST_LOAD_STATUS=",$System.Status.IsOK(sc),!
+IF $System.Status.IsError(sc) WRITE $System.Status.GetErrorText(sc),!
+HALT

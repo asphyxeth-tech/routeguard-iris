@@ -1,0 +1,4 @@
+ZN "USER"
+SET failures = ##class(RouteGuard.Test.AISeam).Run()
+WRITE "ROUTEGUARD_AI_SEAM_EXIT=",failures,!
+HALT

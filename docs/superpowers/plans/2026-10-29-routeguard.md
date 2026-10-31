@@ -56,6 +56,8 @@
 **Interfaces:** `RouteGuard.AI.Decider.Decide(exception, ByRef route, ByRef reason)` uses `%AI.Provider` and `%AI.Agent` to select a bounded recommendation.
 
 - [ ] Obtain build 154 through the operator's authorized EAP portal and load it locally; never publish its image.
+- [x] Test the production's agent boundary with a synthetic, temporary decider and verify source markers on public IRIS.
+- [x] Test strict JSON response parsing on public IRIS; prepare the separate EAP adapter source without claiming it is compiled.
 - [ ] Write and run a failing live AI Hub integration test with a cost-limited provider key.
 - [ ] Implement the AI Hub adapter and wire it into the process.
 - [ ] Run the live test and a no-key safe-fallback test; document actual model usage and cost.

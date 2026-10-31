@@ -17,7 +17,7 @@ The work is fresh for this income competition. It uses no code or concept from D
 1. A demo harness sends a synthetic `RouteGuard.Message.Exception` through `RouteGuard.Service.Intake`. Each event has an event ID, shipment ID, event type, delay minutes, carrier note, and whether an alternate route is available. No personal data is included.
 2. Validation rejects malformed or out-of-range events. Duplicate event IDs return the recorded result without a second agent call.
 3. A temperature excursion or delay over 180 minutes goes to `REVIEW` without model autonomy. Other valid exceptions go to the AI Hub agent for a choice among `CONTACT`, `EXPEDITE`, and `REVIEW`, with a short reason.
-4. A post-agent guard rejects unknown output and prevents `EXPEDITE` unless an alternative route exists. Failures or missing AI configuration safely become `REVIEW` with an explicit source marker.
+4. The adapter requests a short JSON object, rejects malformed or oversized responses, and passes the route and reason through an independent post-agent guard. Unknown output and unsupported `EXPEDITE` become `REVIEW` with `Source=guardrail`. Missing AI configuration or a provider failure becomes `REVIEW` with `Source=fallback`. Only a validated, unmodified model recommendation uses `Source=ai`.
 5. The Business Operation saves one audit row per event with the final route, reason, and source. It never performs an external shipment action.
 
 ## Development and submission gates
