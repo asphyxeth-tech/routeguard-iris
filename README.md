@@ -69,9 +69,17 @@ docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/
 docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-production.mac'
 ```
 
-`compose.yaml` is the default contest startup and `compose.eap.yml` keeps the same EAP settings for explicit use. Both refuse a registry pull and expose the local Management Portal on `127.0.0.1:52773`. Their syntax is checked, but startup, EAP class compilation, and AI Hub behavior are unverified until the correct image is installed. The test double must be removed before compiling the EAP adapter. Copy `.env.example` to `.env` and supply `OPENAI_API_KEY` only for a bounded live test after checking provider cost; Docker Compose reads `.env` and passes the key to the local container. Keep it out of logs and screenshots. Do not commit the archive, a derived image, license, provider key, or `.env` file. Judges use their own provider key.
+`compose.yaml` is the default contest startup and `compose.eap.yml` keeps the same EAP settings for explicit use. Both refuse a registry pull and expose the local Management Portal on `127.0.0.1:52773`. Their syntax is checked, but startup, EAP class compilation, and AI Hub behavior are unverified until the correct image is installed. The test double must be removed before compiling the EAP adapter. Keep `OPENAI_API_KEY` unset or empty for the first `docker compose up -d` and `test-production.mac` so that the no-key REVIEW fallback is tested. Do not commit the archive, a derived image, license, provider key, or `.env` file. Judges use their own provider key.
 
-After build 154 is loaded and a model key/cost limit are approved, run one synthetic live decision and check for `ROUTEGUARD_AI_LIVE_EXIT=0` plus `AI_LIVE_SOURCE=ai`:
+After build 154 is loaded and a model key/cost limit are approved, copy `.env.example` to `.env` and set `OPENAI_API_KEY` locally. Recreate the container before the live test: a plain `docker compose restart` does not update container environment variables, and recreation may lose the compiled classes, so compile both source trees again. Keep the key out of logs and screenshots.
+
+```powershell
+docker compose up -d --force-recreate
+docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/compile-core.mac'
+docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/compile-eap.mac'
+```
+
+Then run one synthetic live decision and check for `ROUTEGUARD_AI_LIVE_EXIT=0` plus `AI_LIVE_SOURCE=ai`:
 
 ```powershell
 docker compose exec -T iris sh -lc 'iris session IRIS -U USER < /opt/routeguard/scripts/test-ai-live.mac'
